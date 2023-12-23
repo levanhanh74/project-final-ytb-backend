@@ -117,4 +117,14 @@ const GetAllUserController = async (req, res) => {
         return res.status(404).json({ message: error })
     }
 }
-module.exports = { CreateUserController, LoginUserController, UpdateUserController, DeleteUserController, GetAllUserController };
+const DetailUserController = async (req, res) => {
+    try {
+        const getId = req.params.id;
+        console.log(getId);
+        const resTeu = await UserService.getDetailUser(getId);
+        return res.status(200).json({ data: resTeu });
+    } catch (error) {
+        return res.status(404).json({ message: error })
+    }
+}
+module.exports = { CreateUserController, LoginUserController, UpdateUserController, DeleteUserController, GetAllUserController, DetailUserController };

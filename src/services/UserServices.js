@@ -98,7 +98,7 @@ const UpdateUser = (checkId, UpdateUser) => {
                 const updateUser = await Users.findByIdAndUpdate(checkIds.id, updateUsers, { new: true });
                 /// findByIdAndUpdate('idNeedUpdate', {dataUpdate}, {new: "If true it willl display value new current, then it will display value that before. "})
                 // console.log(updateUser);
-                if(updateUser){
+                if (updateUser) {
                     return resolve({
                         status: "OK",
                         message: "You have update User SuccessFully!",
@@ -162,5 +162,31 @@ const getAllUser = () => {
         }
     })
 }
+const getDetailUser = (checkId) => {
+    return new Promise(async (resolve, rejects) => {
+        try {
+            const checkIds = await Users.find({ _id: checkId });
+            // console.log(checkIds);
 
-module.exports = { createUser, loginUser, UpdateUser, DeleteUser, getAllUser };
+            if (checkIds === null) {
+                return resolve({
+                    status: "ERROR Find User",
+                    message: "This User not isset!"
+                })
+            } else {
+                const getOneUser = await Users.findOne({ _id: checkId });
+                // console.log("getOneUser: ", getOneUser);
+                return resolve({
+                    status: "OK",
+                    message: "This getOne User SuccessFully!",
+                    dataNew: getOneUser
+                })
+            }
+        } catch (error) {
+            console.log("Loi o userService!");
+            rejects(error)
+        }
+    })
+}
+
+module.exports = { createUser, loginUser, UpdateUser, DeleteUser, getAllUser, getDetailUser };
