@@ -41,12 +41,12 @@ const CreateUserController = async (req, res) => {
 const LoginUserController = async (req, res) => {
     try {
         // console.log("KQ", req.body);
-        const { name, email, password, confirmPassword, phone } = req.body;
+        const { email, password, confirmPassword } = req.body;
         const reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; // Dung bieu thuc chinh quy de test email.
         const isCheckEmail = reg.test(email);
 
         // console.log(isCheckEmail);
-        if (!name || !email || !password || !confirmPassword || !phone) {
+        if (!email || !password || !confirmPassword) {
             console.log("Error 1");
             return res.status(200).json({
                 status: "Err",
@@ -64,9 +64,9 @@ const LoginUserController = async (req, res) => {
             return res.status(200).json({
                 status: "Err",
                 message: "The input both password similar!"
-            })
+            });
         } else {
-            console.log("KQ UserControllers: ", name, email, password, confirmPassword, phone);
+            // console.log("KQ UserControllers: ", email, password, confirmPassword );
             const resTeu = await UserService.loginUser(req.body);
             return res.status(200).json(resTeu);
         }
@@ -74,4 +74,47 @@ const LoginUserController = async (req, res) => {
         return res.status(404).json({ message: error })
     }
 }
-module.exports = { CreateUserController, LoginUserController };
+const UpdateUserController = async (req, res) => {
+    try {
+
+        const userId = req.params.id;
+        // console.log("IDUSER: ", userId);
+        if (!userId) {
+            return res.json({
+                status: "ERROR",
+                message: "You can't update this user, cause user not isset!"
+            })
+        } else {
+            const resTeu = await UserService.UpdateUser(userId, req.body);
+            return res.status(200).json(resTeu);
+        }
+    } catch (error) {
+        return res.status(404).json({ message: error })
+    }
+}
+const DeleteUserController = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        // console.log("IDUSER: ", userId);
+        if (!userId) {
+            return res.json({
+                status: "ERROR",
+                message: "You can't Delete this user, cause user not isset!"
+            })
+        } else {
+            const resTeu = await UserService.DeleteUser(userId);
+            return res.status(200).json({ data: resTeu });
+        }
+    } catch (error) {
+        return res.status(404).json({ message: error })
+    }
+}
+const GetAllUserController = async (req, res) => {
+    try {
+        const resTeu = await UserService.getAllUser();
+        return res.status(200).json({ data: resTeu });
+    } catch (error) {
+        return res.status(404).json({ message: error })
+    }
+}
+module.exports = { CreateUserController, LoginUserController, UpdateUserController, DeleteUserController, GetAllUserController };
