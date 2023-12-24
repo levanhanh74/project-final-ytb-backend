@@ -127,4 +127,21 @@ const DetailUserController = async (req, res) => {
         return res.status(404).json({ message: error })
     }
 }
-module.exports = { CreateUserController, LoginUserController, UpdateUserController, DeleteUserController, GetAllUserController, DetailUserController };
+const RefreshTokenController = async (req, res) => {
+    try {
+        const token = req.headers.token;
+        // console.log(token);
+        if (!token) {
+            return res.json({
+                status: "ERROR",
+                message: "You must have this user, cause user not isset!"
+            })
+        } else {
+            const resTeu = await UserService.RefreshTokenUser(token);
+            return res.status(200).json({ data: resTeu });
+        }
+    } catch (error) {
+        return res.status(404).json({ message: error })
+    }
+}
+module.exports = { CreateUserController, LoginUserController, UpdateUserController, DeleteUserController, GetAllUserController, DetailUserController, RefreshTokenController };

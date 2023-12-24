@@ -1,6 +1,6 @@
 const Users = require("../models/Users");
 const bcrypt = require('bcrypt');
-const generalAccess_Token = require('../services/jwtService');
+const generalToken = require('../services/jwtService');
 
 const createUser = (newUser) => {
     const { name, email, password, phone } = newUser;
@@ -51,11 +51,11 @@ const loginUser = (LoginUser) => {
             } else {
                 const checkPass = bcrypt.compareSync(password, checkEmail.password);
                 // console.log("CheckPass: ", checkPass); // boolean 
-                const access_token = await generalAccess_Token.generalAccess_Token({
+                const access_token = await generalToken.generalAccess_Token({
                     id: checkEmail.id,
                     isAdmin: checkEmail.isAdmin,
                 });  // access_token 
-                const refresh_token = await generalAccess_Token.generalRefresh_Token({
+                const refresh_token = await generalToken.generalRefresh_Token({
                     id: checkEmail.id,
                     isAdmin: checkEmail.isAdmin,
                 });  // refresh_token 
@@ -189,4 +189,16 @@ const getDetailUser = (checkId) => {
     })
 }
 
-module.exports = { createUser, loginUser, UpdateUser, DeleteUser, getAllUser, getDetailUser };
+const RefreshTokenUser = (token) => {
+    return new Promise(async (resolve, rejects) => {
+        try {
+            // console.log("token: ", token);
+            await generalToken.generalAccess_Token_User(token, resolve);
+        } catch (error) {
+            console.log("Loi o userService!");
+            rejects(error)
+        }
+    })
+}
+
+module.exports = { createUser, loginUser, UpdateUser, DeleteUser, getAllUser, getDetailUser, RefreshTokenUser };
