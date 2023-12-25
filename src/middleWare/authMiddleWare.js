@@ -6,7 +6,7 @@ const AuthMiddleWare = (req, res, next) => {
     const token = req.headers.token.split(" ")[0];  // Nhan token tu khi click su kien delete
     // console.log("token at authMiddleware: ", req.headers.token.split(" "));
     jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
-        console.log("Delete User: ", user);
+        console.log("User: ", user);
         if (err) {
             return res.json({
                 status: "ERROR",
