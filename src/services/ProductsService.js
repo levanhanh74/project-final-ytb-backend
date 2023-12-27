@@ -119,28 +119,64 @@ const DetailProductService = (idProduct) => {
         }
     })
 }
-const GetAllProductService = () => {
-    // console.log(newProduct);
+const GetAllProductService = (limit, page, sort, filter) => {
     return new Promise(async (resolve, rejects) => {
         try {
-            const isIssetProduct = await Product.find({});
-            // console.log(isIssetProduct);
-            if (isIssetProduct !== null) {
-                console.log(isIssetProduct !== null);
+            const countProduct = await Product.countDocuments();
+
+            if (!sort && !filter) {
+                const allProduct = await Product.find().limit(limit).skip(limit * page);
                 resolve({
-                    status: "SuccessFully",
-                    message: "All process successfully, but not product!",
-                    dataERROR: isIssetProduct
+                    status: "OK",
+                    message: "List All Product",
+                    data: allProduct,
+                    pageCurrent: (page + 1),
+                    countProduct,
+                    totalPage: Math.ceil(countProduct / limit)
                 })
             } else {
-                if (isIssetProduct) {
-                    await resolve({
+                if (sort) {
+                    // console.log(sort);
+                    const allSortProduct = await Product.find().limit(limit).skip(limit * page).sort({ name: sort });
+                    let ObjectSort = {};
+                    ObjectSort[sort] = sort
+
+                    console.log(ObjectSort);
+                    resolve({
                         status: "OK",
-                        message: "List Product successfully",
-                        data: isIssetProduct,
+                        message: "List Product successfully sort",
+                        data: allSortProduct,
+                        pageCurrent: (page + 1),
+                        countProduct,
+                        totalPage: Math.ceil(countProduct / limit)
                     })
                 }
+                if (filter) {
+                    console.log(filter);
+                    const isFindProduct = await await Product.find({ name: { "$regex": filter } });
+                    // console.log(isFindProduct);
+                    if (!isFindProduct.length) {
+                        resolve({
+                            status: "OK",
+                            message: "List Product haven't filter",
+                            data: isFindProduct,
+                            pageCurrent: (page + 1),
+                            countProduct,
+                            totalPage: Math.ceil(countProduct / limit)
+                        })
+                    } else {
+                        resolve({
+                            status: "OK",
+                            message: "List Product filter",
+                            data: isFindProduct,
+                            pageCurrent: (page + 1),
+                            countProduct,
+                            totalPage: Math.ceil(countProduct / limit)
+                        })
+                    }
+                }
             }
+
         } catch (error) {
             console.log("Loi o ProductsService!");
             rejects(error)

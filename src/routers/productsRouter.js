@@ -8,7 +8,7 @@ routers.post('/create', AuthMiddleWare, ProductsController.createProduct);
 routers.put('/update/:id', AuthMiddleWare, ProductsController.updateProduct);
 routers.get('/delete/:id', AuthMiddleWare, ProductsController.deleteProduct);
 routers.get('/detailProduct/:id', AuthMiddleWareUser, ProductsController.detailProduct);
-routers.get('/getallProduct', AuthMiddleWareUser, ProductsController.getAllProduct);
+routers.get('/getallProduct', ProductsController.getAllProduct);
 
 
 

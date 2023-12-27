@@ -40,8 +40,8 @@ const AuthMiddleWareUser = (req, res, next) => {
             const { payload } = user;
             // console.log(payload.id);
             // console.log(userId);
-            if (payload.isAdmin?.id === true || payload.id !== userId) {
-                console.log("chay loi", payload.isAdmin === true, payload.id !== userId);
+            if (payload?.isAdmin !== true || payload.id !== userId) {
+                // console.log("chay loi", payload.isAdmin !== true, payload.id !== userId, userId);
                 return res.json({
                     status: "ERROR",
                     message: "Ban dang co y nhap sai nguoi dung de dang nhap trai phep!"
@@ -52,4 +52,5 @@ const AuthMiddleWareUser = (req, res, next) => {
         }
     });
 }
+
 module.exports = { AuthMiddleWare, AuthMiddleWareUser }
