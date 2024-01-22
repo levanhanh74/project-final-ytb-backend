@@ -123,7 +123,6 @@ const GetAllProductService = (limit, page, sort, filter) => {
     return new Promise(async (resolve, rejects) => {
         try {
             const countProduct = await Product.countDocuments();
-
             if (!sort && !filter) {
                 const allProduct = await Product.find().limit(limit).skip(limit * page);
                 resolve({
@@ -138,8 +137,6 @@ const GetAllProductService = (limit, page, sort, filter) => {
                 if (sort) {
                     // console.log(sort);
                     const allSortProduct = await Product.find().limit(limit).skip(limit * page).sort({ name: sort });
-                    let ObjectSort = {};
-                    ObjectSort[sort] = sort
 
                     console.log(ObjectSort);
                     resolve({

@@ -5,43 +5,7 @@ const bcrypt = require('bcrypt');
 const CreateUserController = async (req, res) => {
     try {
         // console.log("KQ", req.body);
-        const { name, email, password, confirmPassword, phone } = req.body;
-        const reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; // Dung bieu thuc chinh quy de test email.
-        const isCheckEmail = reg.test(email);
-
-        // console.log(isCheckEmail);
-        if (!name || !email || !password || !confirmPassword || !phone) {
-            console.log("Error 1");
-            return res.status(200).json({
-                status: "Err",
-                message: "The input is require enter!"
-            })
-        } else if (!isCheckEmail) {
-            console.log("Error 2");
-            console.log("err mail");
-            return res.status(200).json({
-                status: "Err",
-                message: "The input must is email ex@example!"
-            })
-        } else if (password !== confirmPassword) {
-            console.log("Error 3");
-            return res.status(200).json({
-                status: "Err",
-                message: "The input both password similar!"
-            })
-        } else {
-            console.log("KQ UserControllers: ", name, email, password, confirmPassword, phone);
-            const resTeu = await UserService.createUser(req.body);
-            return res.status(200).json(resTeu);
-        }
-    } catch (error) {
-        return res.status(404).json({ message: error })
-    }
-}
-const LoginUserController = async (req, res) => {
-    try {
-        // console.log("KQ", req.body);
-        const { email, password, confirmPassword } = req.body;
+        const { password, email, confirmPassword } = req.body;
         const reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; // Dung bieu thuc chinh quy de test email.
         const isCheckEmail = reg.test(email);
 
@@ -64,11 +28,46 @@ const LoginUserController = async (req, res) => {
             return res.status(200).json({
                 status: "Err",
                 message: "The input both password similar!"
-            });
+            })
         } else {
-            // console.log("KQ UserControllers: ", email, password, confirmPassword );
-            const resTeu = await UserService.loginUser(req.body);
+            console.log("KQ UserControllers: ", email, password, confirmPassword);
+            const resTeu = await UserService.createUser(req.body);
             return res.status(200).json(resTeu);
+        }
+    } catch (error) {
+        return res.status(404).json({ message: error })
+    }
+}
+const LoginUserController = async (req, res) => {
+    try {
+        // console.log("KQ", req.body);
+        const { email, password } = req.body;
+        const reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; // Dung bieu thuc chinh quy de test email.
+        const isCheckEmail = reg.test(email);
+        if (!email || !password) {
+            console.log("Error 1");
+            return res.status(200).json({
+                status: "Err",
+                message: "The input is require enter!"
+            })
+        } else if (!isCheckEmail) {
+            console.log("Error 2");
+            console.log("err mail");
+            return res.status(200).json({
+                status: "Err",
+                message: "The input must is email ex@example!"
+            })
+        } else {
+            // console.log("KQ UserControllers: ", email, password );   
+            const resTeu = await UserService.loginUser(req.body);
+            const { refresh_token, ...newAccessToken } = resTeu;
+            res.cookie('refresh_token', refresh_token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'strict'
+            });
+            // console.log("refreshToken:", refresh_token);
+            return res.status(200).json({ ...newAccessToken, refresh_token });
         }
     } catch (error) {
         return res.status(404).json({ message: error })
@@ -120,7 +119,6 @@ const GetAllUserController = async (req, res) => {
 const DetailUserController = async (req, res) => {
     try {
         const getId = req.params.id;
-        console.log(getId);
         const resTeu = await UserService.getDetailUser(getId);
         return res.status(200).json({ data: resTeu });
     } catch (error) {
@@ -129,15 +127,16 @@ const DetailUserController = async (req, res) => {
 }
 const RefreshTokenController = async (req, res) => {
     try {
-        const token = req.headers.token;
-        // console.log(token);
-        if (!token) {
+        const cookies_token = req.body.headers.token;
+        console.log("cookieController: ", cookies_token);
+        if (!cookies_token) {
             return res.json({
                 status: "ERROR",
                 message: "You must have this user, cause user not isset!"
             })
         } else {
-            const resTeu = await UserService.RefreshTokenUser(token);
+            const resTeu = await UserService.RefreshTokenUserService(cookies_token);
+            // console.log("move: ", cookies_token);
             return res.status(200).json({ data: resTeu });
         }
     } catch (error) {

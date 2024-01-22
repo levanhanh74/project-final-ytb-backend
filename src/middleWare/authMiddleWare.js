@@ -6,15 +6,14 @@ const AuthMiddleWare = (req, res, next) => {
     const token = req.headers.token.split(" ")[0];  // Nhan token tu khi click su kien delete
     // console.log("token at authMiddleware: ", req.headers.token.split(" "));
     jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
-        console.log("User: ", user);
+        console.log("UserAuth: ", user);
         if (err) {
             return res.json({
                 status: "ERROR",
                 message: "The authentication not confirm!"
             })
         } else {
-            const { payload } = user;
-            if (payload.isAdmin !== true) {
+            if (user?.isAdmin !== true) {
                 return res.json({
                     status: "ERROR",
                     message: "You mustn't is admin! You must is admin new delete this account."
@@ -26,28 +25,25 @@ const AuthMiddleWare = (req, res, next) => {
     });
 }
 const AuthMiddleWareUser = (req, res, next) => {
-    const token = req.headers.token.split(" ")[0];  // Nhan token tu khi click su kien delete
-    // console.log("token at authMiddleware: ", req.headers.token.split(" "));
+    const token = req.headers.token.split(' ')[0]  // Nhan token tu khi click su kien delete
     const userId = req.params.id;
-
+    console.log("tokenGetDetail: ", token);
     jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
+        console.log("UserAuThen: ", user);
         if (err) {
             return res.json({
                 status: "ERROR",
-                message: "The authentication not confirm!"
+                message: "The authentication not confirm access_token!",
             })
         } else {
-            const { payload } = user;
-            // console.log(payload.id);
-            // console.log(userId);
-            if (payload?.isAdmin !== true || payload.id !== userId) {
-                // console.log("chay loi", payload.isAdmin !== true, payload.id !== userId, userId);
+            // console.log("user: ", user.id, "userId: ", userId, userId === user.id, user?.isAdmin);
+            if (userId === user?.id || user?.isAdmin) { // if user or admin then next 
+                next();
+            } else {
                 return res.json({
                     status: "ERROR",
                     message: "Ban dang co y nhap sai nguoi dung de dang nhap trai phep!"
                 })
-            } else {
-                next();
             }
         }
     });

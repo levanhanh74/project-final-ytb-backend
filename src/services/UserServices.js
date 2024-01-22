@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const generalToken = require('../services/jwtService');
 
 const createUser = (newUser) => {
-    const { name, email, password, phone } = newUser;
+    const { email, password } = newUser;
     return new Promise(async (resolve, rejects) => {
         try {
             const checkEmail = await Users.findOne({ email: email });
@@ -15,12 +15,8 @@ const createUser = (newUser) => {
             } else {
                 const saltRound = 8; // mean time attack, It can block attack.
                 const newUsers = await Users.create({
-                    name,
                     email,
                     password: bcrypt.hashSync(password, saltRound),
-                    phone,
-                    access_token: "access_tokens",
-                    refresh_token: "refresh_tokens"
                 });
                 console.log(newUsers);
                 if (newUsers) {
@@ -38,7 +34,7 @@ const createUser = (newUser) => {
     })
 }
 const loginUser = (LoginUser) => {
-    const { email, password, confirmPassword } = LoginUser;
+    const { email, password } = LoginUser;
     return new Promise(async (resolve, rejects) => {
         try {
             const checkEmail = await Users.findOne({ email });
@@ -66,9 +62,15 @@ const loginUser = (LoginUser) => {
                     await resolve({
                         status: "OK",
                         message: "Login User successfully",
-                        data: checkEmail,
+                        data: checkEmail, // GetData new from dataBase
                         access_token,
                         refresh_token
+                    })
+                } else {
+                    await resolve({
+                        status: "ERROR",
+                        message: "Login User UnSuccessfully",
+                        data: checkPass === true ? checkEmail : "Password or email error!"
                     })
                 }
             }
@@ -189,16 +191,12 @@ const getDetailUser = (checkId) => {
     })
 }
 
-const RefreshTokenUser = (token) => {
-    return new Promise(async (resolve, rejects) => {
-        try {
-            // console.log("token: ", token);
-            await generalToken.generalAccess_Token_User(token, resolve);
-        } catch (error) {
-            console.log("Loi o userService!");
-            rejects(error)
-        }
-    })
+const RefreshTokenUserService = async (token) => {
+    if (!token) {
+        console.log("Your token not isset or false!!");
+    } else {
+        return await generalToken.generalAccess_Token_User(token);
+    }
 }
 
-module.exports = { createUser, loginUser, UpdateUser, DeleteUser, getAllUser, getDetailUser, RefreshTokenUser };
+module.exports = { createUser, loginUser, UpdateUser, DeleteUser, getAllUser, getDetailUser, RefreshTokenUserService };

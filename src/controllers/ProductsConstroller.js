@@ -82,8 +82,7 @@ const getAllProduct = async (req, res) => {
     try {
         const { limit, page, sort, filter } = req.query;
         // console.log(limit, ", ", page);
-
-        const resTeu = await ProductService.GetAllProductService(Number(limit) || 3, Number(page) || 0, sort , filter);
+        const resTeu = await ProductService.GetAllProductService(Number(limit) || 3, Number(page) || 0, sort, filter);
         return res.status(200).json(resTeu);
     } catch (error) {
         return res.status(404).json({ message: error })
