@@ -6,11 +6,13 @@ const { AuthMiddleWare, AuthMiddleWareUser } = require('../middleWare/authMiddle
 
 routers.post('/signup', CreateUserController.CreateUserController);
 routers.post('/login', CreateUserController.LoginUserController);
+routers.post('/logout', CreateUserController.LogoutUserController);
 routers.put('/update/:id', AuthMiddleWareUser, CreateUserController.UpdateUserController);
 routers.get('/delete/:id', AuthMiddleWare, CreateUserController.DeleteUserController);
 routers.get('/getAllUser', AuthMiddleWare, CreateUserController.GetAllUserController);
 routers.get('/detailUser/:id', AuthMiddleWareUser, CreateUserController.DetailUserController);
 routers.post('/refreshToken', CreateUserController.RefreshTokenController);
+routers.post('/deleteMutiple/:id', AuthMiddleWare, CreateUserController.DeleteMutipleController);
 
 
 module.exports = routers; 

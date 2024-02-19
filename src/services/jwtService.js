@@ -5,7 +5,7 @@ dotenv.config()
 const generalAccess_Token = (payload) => {
     const access_token = jwt.sign({
         ...payload
-    }, process.env.ACCESS_TOKEN, { expiresIn: "3s" });
+    }, process.env.ACCESS_TOKEN, { expiresIn: "20s" });
     return access_token;
     // expiresIn : đó là thời hạn token tồn tại.
 };
@@ -18,33 +18,40 @@ const generalRefresh_Token = (payload) => {
 }
 
 const generalAccess_Token_User = async (token) => {
+    console.log("tokenJWT: ", token);
     return new Promise(async (resolve, reject) => {
-        if (!token) {
-            resolve({
-                status: "ERROR",
-                message: "Token user haven't or not isset!"
-            })
-        } else {
-            //    Here it get token, but verify not true
-            jwt.verify(token, process.env.REFRESH_TOKEN, async (err, user) => {
-                if (err) {
-                    resolve({
-                        status: "ERR",
-                        message: "This token not isset and not authentication!"
-                    })
-                } else {
-                    console.log("JWTService: ", user);
-                    const access_token = await generalAccess_Token({
-                        id: user?.id,
-                        isAdmin: user?.isAdmin
-                    })
-                    resolve({
-                        status: "Successfully",
-                        message: "AccessToken to Refresh_Token successfully",
-                        access_token,
-                    })
-                }
-            })
+        try {
+            if (!token) {
+                resolve({
+                    status: "ERROR",
+                    message: "Token user haven't or not isset!"
+                })
+            } else {
+                //    Here it get token, but verify not true
+                jwt.verify(token, process.env.REFRESH_TOKEN, async (err, user) => {
+                    // console.log("accesstokenRefresh: ", user);
+                    if (err) {
+                        resolve({
+                            status: "ERR",
+                            message: "This token not isset and not authentication!"
+                        })
+                    } else {
+                        // console.log("JWTService: ", user);
+                        const access_token = generalAccess_Token({
+                            id: user?.id,
+                            isAdmin: user?.isAdmin
+                        })
+                        console.log("access_tokenGeneral: ", access_token);
+                        resolve({
+                            status: "Successfully",
+                            message: "AccessToken to Refresh_Token successfully",
+                            access_token,
+                        });
+                    }
+                })
+            }
+        } catch (error) {
+            reject(error);
         }
     })
 }

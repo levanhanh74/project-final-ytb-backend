@@ -38,8 +38,8 @@ const loginUser = (LoginUser) => {
     return new Promise(async (resolve, rejects) => {
         try {
             const checkEmail = await Users.findOne({ email });
-            // console.log(": ", checkEmail);
-            if (checkEmail === null) {
+            // console.log(": ", checkEmail);       
+            if (!checkEmail) {
                 resolve({
                     status: "ERROR",
                     message: "This user not isset, please email difference!"
@@ -58,16 +58,16 @@ const loginUser = (LoginUser) => {
                 // console.log(checkEmail);
                 // console.log("refresh_token: ", refresh_token);
                 // console.log("access_token: ", access_token);
-                if (checkPass) {
-                    await resolve({
+                if (checkPass) { // successfully
+                    resolve({
                         status: "OK",
                         message: "Login User successfully",
                         data: checkEmail, // GetData new from dataBase
                         access_token,
-                        refresh_token
+                        refresh_token,
                     })
-                } else {
-                    await resolve({
+                } else {  // unsuccessfully
+                    resolve({
                         status: "ERROR",
                         message: "Login User UnSuccessfully",
                         data: checkPass === true ? checkEmail : "Password or email error!"
@@ -81,12 +81,13 @@ const loginUser = (LoginUser) => {
     })
 }
 const UpdateUser = (checkId, UpdateUser) => {
-    return new Promise(async (resolve, rejects) => {
+    return new Promise(async (resolve, reject) => {
+        console.log("ID: ", checkId, " UpdateDateUser: ", { ...UpdateUser });
         try {
             const checkIds = await Users.findOne({ _id: checkId });
-            // console.log("KQ checkID: ", checkIds);
+            // console.log("CheckidFind: ", checkIds);
             if (checkIds === null) {
-                return resolve({
+                resolve({
                     status: "ERROR update User",
                     message: "You haven't update user!"
                 })
@@ -95,25 +96,27 @@ const UpdateUser = (checkId, UpdateUser) => {
                     ...UpdateUser,
                     password: bcrypt.hashSync(UpdateUser.password, 8),
                 }
+                console.log("updateUsers12: ", updateUsers);
+                const updateUser = await Users.findByIdAndUpdate(checkIds._id, updateUsers, { new: true }); //"If true it willl display value new current, then it will display value that before. "
+                console.log("update success!");
 
-                // console.log(updateUsers);
-                const updateUser = await Users.findByIdAndUpdate(checkIds.id, updateUsers, { new: true });
-                /// findByIdAndUpdate('idNeedUpdate', {dataUpdate}, {new: "If true it willl display value new current, then it will display value that before. "})
-                // console.log(updateUser);
                 if (updateUser) {
-                    return resolve({
+                    resolve({
                         status: "OK",
                         message: "You have update User SuccessFully!",
                         dataUpdate: updateUser
                     })
                 }
             }
+
+
         } catch (error) {
-            console.log("Loi o userService!");
-            rejects(error)
+            console.log("Loi o userService UpdateUSer!");
+            reject(error)
         }
     })
 }
+
 const DeleteUser = (checkId) => {
     return new Promise(async (resolve, rejects) => {
         try {
@@ -168,8 +171,6 @@ const getDetailUser = (checkId) => {
     return new Promise(async (resolve, rejects) => {
         try {
             const checkIds = await Users.find({ _id: checkId });
-            // console.log(checkIds);
-
             if (checkIds === null) {
                 return resolve({
                     status: "ERROR Find User",
@@ -195,8 +196,25 @@ const RefreshTokenUserService = async (token) => {
     if (!token) {
         console.log("Your token not isset or false!!");
     } else {
+        // console.log("service token refresh: ", token);
         return await generalToken.generalAccess_Token_User(token);
     }
 }
 
-module.exports = { createUser, loginUser, UpdateUser, DeleteUser, getAllUser, getDetailUser, RefreshTokenUserService };
+//Cái này chưa xong để làm sau phần admin
+const deleteMutipleUserService = async (_id) => {
+    return new Promise(async (resolve, rejects) => {
+        try {
+            const deleteMany = await Users.deleteMany();
+            // console.log("delete", deleteMany);
+            resolve({
+                status: "OK",
+                deleteMany
+            })
+        } catch (error) {
+            rejects({ error })
+        }
+    })
+}
+
+module.exports = { createUser, loginUser, UpdateUser, DeleteUser, getAllUser, getDetailUser, RefreshTokenUserService, deleteMutipleUserService };

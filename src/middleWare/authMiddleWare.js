@@ -6,7 +6,7 @@ const AuthMiddleWare = (req, res, next) => {
     const token = req.headers.token.split(" ")[0];  // Nhan token tu khi click su kien delete
     // console.log("token at authMiddleware: ", req.headers.token.split(" "));
     jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
-        console.log("UserAuth: ", user);
+        // console.log("UserAuth: ", user);
         if (err) {
             return res.json({
                 status: "ERROR",
@@ -25,11 +25,11 @@ const AuthMiddleWare = (req, res, next) => {
     });
 }
 const AuthMiddleWareUser = (req, res, next) => {
-    const token = req.headers.token.split(' ')[0]  // Nhan token tu khi click su kien delete
+    const token = req.headers.token.split(' ')[0];
     const userId = req.params.id;
-    console.log("tokenGetDetail: ", token);
+    console.log("tokenGetDetail: ", token, "UserId: ", userId);
     jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
-        console.log("UserAuThen: ", user);
+        console.log("UserAuThen: ", user, "Err: ", err);
         if (err) {
             return res.json({
                 status: "ERROR",
@@ -37,7 +37,7 @@ const AuthMiddleWareUser = (req, res, next) => {
             })
         } else {
             // console.log("user: ", user.id, "userId: ", userId, userId === user.id, user?.isAdmin);
-            if (userId === user?.id || user?.isAdmin) { // if user or admin then next 
+            if (userId === user?.id || user?.isAdmin) { // if user or admin then next \
                 next();
             } else {
                 return res.json({
